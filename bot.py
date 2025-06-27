@@ -7,6 +7,7 @@ from config import API_ID, API_HASH, BOT_TOKEN
 import requests
 import threading
 import time
+import asyncio
 
 class Bot(Client):
 
@@ -22,11 +23,27 @@ class Bot(Client):
         )
 
     async def start(self):
-        await super().start()
-        print('Bot Started Powered By @VJ_Botz')
-        # Start keep-alive thread
-        self.keep_alive_thread = threading.Thread(target=self.keep_alive, daemon=True)
-        self.keep_alive_thread.start()
+        max_retries = 5
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                await super().start()
+                print('Bot Started Powered By @VJ_Botz')
+                # Start keep-alive thread
+                self.keep_alive_thread = threading.Thread(target=self.keep_alive, daemon=True)
+                self.keep_alive_thread.start()
+                break
+            except Exception as e:
+                if "FloodWait" in str(e):
+                    wait_time = int(str(e).split("A wait of")[1].split(" seconds")[0])
+                    print(f"FloodWait detected. Waiting for {wait_time} seconds...")
+                    await asyncio.sleep(wait_time)
+                    retry_count += 1
+                else:
+                    print(f"Unexpected error: {e}")
+                    break
+        if retry_count >= max_retries:
+            print("Max retries reached. Bot failed to start.")
 
     async def stop(self, *args):
         await super().stop()
@@ -41,7 +58,9 @@ class Bot(Client):
                 print(f"Keep-alive error: {e}")
             time.sleep(300)  # Ping every 5 minutes
 
-Bot().run()
+if __name__ == "__main__":
+    bot = Bot()
+    asyncio.run(bot.run())
 
 # Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
