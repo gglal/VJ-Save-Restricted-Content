@@ -4,6 +4,9 @@
 
 from pyrogram import Client
 from config import API_ID, API_HASH, BOT_TOKEN
+import requests
+import threading
+import time
 
 class Bot(Client):
 
@@ -18,16 +21,25 @@ class Bot(Client):
             sleep_threshold=10
         )
 
-      
     async def start(self):
-            
         await super().start()
         print('Bot Started Powered By @VJ_Botz')
+        # Start keep-alive thread
+        self.keep_alive_thread = threading.Thread(target=self.keep_alive, daemon=True)
+        self.keep_alive_thread.start()
 
     async def stop(self, *args):
-
         await super().stop()
         print('Bot Stopped Bye')
+
+    def keep_alive(self):
+        while True:
+            try:
+                requests.get("http://0.0.0.0:10000")  # Adjust URL/port as needed
+                print("Keep-alive ping sent")
+            except Exception as e:
+                print(f"Keep-alive error: {e}")
+            time.sleep(300)  # Ping every 5 minutes
 
 Bot().run()
 
