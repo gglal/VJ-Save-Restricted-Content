@@ -36,8 +36,9 @@ class Bot(Client):
             except Exception as e:
                 if "FloodWait" in str(e):
                     wait_time = int(str(e).split("A wait of")[1].split(" seconds")[0])
-                    print(f"FloodWait detected. Waiting for {wait_time} seconds...")
-                    await asyncio.sleep(wait_time)
+                    capped_wait = min(wait_time, 10)  # Cap wait time to 10 seconds
+                    print(f"FloodWait detected. Waiting for {capped_wait} seconds (capped from {wait_time})...")
+                    await asyncio.sleep(capped_wait)
                     retry_count += 1
                 else:
                     print(f"Unexpected error: {e}")
