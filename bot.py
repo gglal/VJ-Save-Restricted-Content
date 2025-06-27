@@ -53,11 +53,11 @@ class Bot(Client):
     def keep_alive(self):
         while True:
             try:
-                requests.get("http://0.0.0.0:10000")  # Adjust URL/port as needed
+                requests.get("http://0.0.0.0:8080")  # Adjust URL/port as needed
                 print("Keep-alive ping sent")
             except Exception as e:
                 print(f"Keep-alive error: {e}")
-            time.sleep(300)  # Ping every 5 minutes
+            time.sleep(10)  # Ping every 5 minutes
 
 if __name__ == "__main__":
     bot = Bot()
